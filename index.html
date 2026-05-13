@@ -159,6 +159,9 @@
       background: white;
       border-radius: 10px;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .close {
       position: absolute;
@@ -174,8 +177,10 @@
       cursor: pointer;
       z-index: 10;
     }
-    iframe {
-      width: 100%; height: 100%; border: none;
+    iframe, img, video {
+      max-width: 100%;
+      max-height: 100%;
+      border: none;
     }
   </style>
 </head>
@@ -183,10 +188,12 @@
 <body>
 <div class="container">
 
+  <!-- 顶部红底白字标题 -->
   <div class="top-banner">
     中意人寿河北分公司资料查询站
   </div>
 
+  <!-- 搜索框 -->
   <div class="search-box">
     <input type="text" id="searchInput" oninput="doSearch()" placeholder="🔍 输入关键词搜索文档（支持模糊搜索）">
   </div>
@@ -209,14 +216,41 @@
       <div class="file-item">
         <span class="icon">📄</span>
         <div class="info">
-          <h3>工具使用手册V1.0</h3>
+          <h3>工具使用手册V1.0.pdf</h3>
           <p>上传时间：2025-01-01</p>
         </div>
         <div class="btns">
-          <button onclick="preview('pdf/工具类/工具使用手册V1.0.pdf')">预览</button>
-          <a href="pdf/工具类/工具使用手册V1.0.pdf" download>下载</a>
+          <button onclick="preview('文件汇总/工具类/工具使用手册V1.0.pdf')">预览</button>
+          <a href="文件汇总/工具类/工具使用手册V1.0.pdf" download>下载</a>
         </div>
       </div>
+
+      <!-- 示例：图片 -->
+      <div class="file-item">
+        <span class="icon">🖼️</span>
+        <div class="info">
+          <h3>产品流程图.jpg</h3>
+          <p>上传时间：2025-01-01</p>
+        </div>
+        <div class="btns">
+          <button onclick="preview('文件汇总/工具类/产品流程图.jpg')">预览</button>
+          <a href="文件汇总/工具类/产品流程图.jpg" download>下载</a>
+        </div>
+      </div>
+
+      <!-- 示例：视频 -->
+      <div class="file-item">
+        <span class="icon">🎥</span>
+        <div class="info">
+          <h3>操作演示视频.mp4</h3>
+          <p>上传时间：2025-01-01</p>
+        </div>
+        <div class="btns">
+          <button onclick="preview('文件汇总/工具类/操作演示视频.mp4')">预览</button>
+          <a href="文件汇总/工具类/操作演示视频.mp4" download>下载</a>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -227,12 +261,12 @@
       <div class="file-item">
         <span class="icon">📄</span>
         <div class="info">
-          <h3>双录一卡通+-+2026.5.6（合规版）</h3>
+          <h3>系统操作流程指南.pdf</h3>
           <p>上传时间：2025-01-02</p>
         </div>
         <div class="btns">
-          <button onclick="preview('pdf/操作类/双录一卡通+-+2026.5.6（合规版）.pdf')">预览</button>
-          <a href="pdf/操作类/双录一卡通+-+2026.5.6（合规版）.pdf" download>下载</a>
+          <button onclick="preview('文件汇总/操作类/系统操作流程指南.pdf')">预览</button>
+          <a href="文件汇总/操作类/系统操作流程指南.pdf" download>下载</a>
         </div>
       </div>
     </div>
@@ -245,12 +279,12 @@
       <div class="file-item">
         <span class="icon">📄</span>
         <div class="info">
-          <h3>产品说明书完整版</h3>
+          <h3>产品说明书完整版.pdf</h3>
           <p>上传时间：2025-01-03</p>
         </div>
         <div class="btns">
-          <button onclick="preview('pdf/产品类/产品说明书完整版.pdf')">预览</button>
-          <a href="pdf/产品类/产品说明书完整版.pdf" download>下载</a>
+          <button onclick="preview('文件汇总/产品类/产品说明书完整版.pdf')">预览</button>
+          <a href="文件汇总/产品类/产品说明书完整版.pdf" download>下载</a>
         </div>
       </div>
     </div>
@@ -260,7 +294,7 @@
   <div id="previewModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closePreview()">&times;</span>
-      <iframe id="pdfFrame"></iframe>
+      <div id="previewArea"></div>
     </div>
   </div>
 
@@ -275,30 +309,46 @@ function showCategory(id) {
   event.target.classList.add('active');
 }
 
-// 预览（微信兼容修复版）
+// 智能预览：支持 PDF / 图片 / 视频
 function preview(url) {
-  var isWeChat = /MicroMessenger/i.test(navigator.userAgent);
-  if (isWeChat) {
-    alert("📌 微信内置浏览器不支持PDF预览\n请点击右上角 ··· → 在浏览器中打开，即可正常预览");
-    return;
+  let area = document.getElementById('previewArea');
+  area.innerHTML = '';
+
+  // 判断文件类型
+  if (url.endsWith('.pdf')) {
+    area.innerHTML = `<iframe src="${url}"></iframe>`;
   }
-  document.getElementById('pdfFrame').src = url;
+  else if (url.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i)) {
+    area.innerHTML = `<img src="${url}" />`;
+  }
+  else if (url.match(/\.(mp4|mov|webm|avi)$/i)) {
+    area.innerHTML = `<video controls src="${url}"></video>`;
+  }
+  else {
+    area.innerHTML = "<h3>不支持预览格式</h3>";
+  }
+
   document.getElementById('previewModal').style.display = 'block';
 }
 
 // 关闭预览
 function closePreview() {
   document.getElementById('previewModal').style.display = 'none';
-  document.getElementById('pdfFrame').src = '';
+  document.getElementById('previewArea').innerHTML = '';
 }
 
-// 模糊搜索
+// 模糊搜索功能
 function doSearch() {
   let keyword = document.getElementById('searchInput').value.toLowerCase();
   let items = document.querySelectorAll('.file-item');
+  
   items.forEach(item => {
     let title = item.querySelector('h3').innerText.toLowerCase();
-    item.style.display = title.includes(keyword) ? 'flex' : 'none';
+    if (title.includes(keyword)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
   });
 }
 </script>
